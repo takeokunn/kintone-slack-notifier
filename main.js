@@ -77,5 +77,3 @@ const main = () => {
     const failure = err => console.log(err);
     handleKintoneAddRecord(success, failure);
 };
-
-main();
