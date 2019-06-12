@@ -3,13 +3,21 @@ require('dotenv').config();
 const SlackWebhook = require('slack-webhook');
 const { Auth, Connection, Record, App } = require('@kintone/kintone-js-sdk');
 
-const kintoneTemplate = `
+const { getAccessToken, listEvents } = require('./calendar');
+
+const kintoneTemplate = (today_events, tomorrow_events) => {
+    return `
 # 本日の業務
 
+## 作業
+
 *
 *
 *
 
+## カレンダー
+
+${today_events}
 
 # 明日の予定
 
@@ -17,8 +25,13 @@ const kintoneTemplate = `
 *
 *
 
+## カレンダー
+
+${tomorrow_events}
+
 # 一言
 `;
+};
 
 
 const handleSlackPostMessage = (text) => {
@@ -32,10 +45,10 @@ const handleSlackPostMessage = (text) => {
     });
 };
 
-const handleGenerateRecord = () => {
+const handleGenerateRecord = text => {
     const record = {
         "content": {
-            "value": kintoneTemplate
+            "value": text
         }
     };
     return record;
@@ -55,7 +68,7 @@ const handleKintoneAuth = () => {
     return auth;
 };
 
-const handleKintoneAddRecord = (success, failure) => {
+const handleKintoneAddRecord = (text, success, failure) => {
     const domain = process.env.KINTONE_DOMAIN;
     const app_id = process.env.KINTONE_APP_ID;
 
@@ -64,16 +77,29 @@ const handleKintoneAddRecord = (success, failure) => {
     const record = new Record(conn);
     const app = new App(conn);
 
-    const my_record = handleGenerateRecord();
+    const my_record = handleGenerateRecord(text);
     fetchKintoneAddRecord(record, app_id, my_record, success, failure);
 };
 
 const main = () => {
-    const success = (res) => {
-        const app_id = process.env.KINTONE_APP_ID;
-        const kintone_url = `日報: https://uuum.cybozu.com/k/${app_id}/show#record=${res.id}`;
-        handleSlackPostMessage(kintone_url);
+    const fetchEventSuccess = res => {
+        const today = new Date();
+        const today_events = res.data.items
+              .filter(event => today.toDateString() === new Date(event.start.dateTime).toDateString())
+              .reduce((accum, event) => `${accum}* ${event.summary} \n`, "");
+        const tomorrow_events = res.data.items
+              .filter(event => today.toDateString() === new Date(event.start.dateTime).toDateString())
+              .reduce((accum, event) => `${accum}* ${event.summary} \n`, "");
+        const text = kintoneTemplate(today_events, tomorrow_events);
+        const success = res => {
+            const app_id = process.env.KINTONE_APP_ID;
+            const kintone_url = `日報: https://uuum.cybozu.com/k/${app_id}/show#record=${res.id}`;
+            handleSlackPostMessage(kintone_url);
+        };
+        const failure = err => console.log(err);
+        handleKintoneAddRecord(text, success, failure);
     };
-    const failure = err => console.log(err);
-    handleKintoneAddRecord(success, failure);
+    listEvents(fetchEventSuccess, err => console.log(err));
 };
+
+main();

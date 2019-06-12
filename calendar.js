@@ -52,20 +52,20 @@ const getAccessToken = () => {
     rl.question('Enter the code from that page here: ', cb);
 };
 
-const listTodayEvents = (success, failure) => {
+const listEvents = (success, failure) => {
     const token = JSON.parse(fs.readFileSync(TOKEN_PATH, 'utf8'));
     const client = createOAuth2Client();
     client.setCredentials(token);
 
     const today = new Date();
-    const tomorrow = new Date();
-    tomorrow.setDate(today.getDate() + 1);
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(today.getDate() + 2);
 
     const calendar = google.calendar({ version: 'v3', auth: client });
     const option = {
         calendarId: 'primary',
         timeMin: today,
-        timeMax: tomorrow,
+        timeMax: twoDaysAgo,
         maxResults: 10,
         singleEvents: true,
         orderBy: 'startTime',
@@ -73,4 +73,4 @@ const listTodayEvents = (success, failure) => {
     fetchCalendarEvent(calendar, option, success, failure);
 };
 
-export { getAccessToken, listTodayEvents };
+module.exports = { getAccessToken, listEvents };
