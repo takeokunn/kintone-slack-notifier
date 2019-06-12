@@ -93,7 +93,8 @@ const main = () => {
         const text = kintoneTemplate(today_events, tomorrow_events);
         const success = res => {
             const app_id = process.env.KINTONE_APP_ID;
-            const kintone_url = `日報: https://uuum.cybozu.com/k/${app_id}/show#record=${res.id}`;
+            const domain = process.env.KINTONE_DOMAIN;
+            const kintone_url = `日報: https://${domain}/k/${app_id}/show#record=${res.id}`;
             handleSlackPostMessage(kintone_url);
         };
         const failure = err => console.log(err);
