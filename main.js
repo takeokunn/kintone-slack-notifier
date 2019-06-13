@@ -84,11 +84,13 @@ const handleKintoneAddRecord = (text, success, failure) => {
 const main = () => {
     const fetchEventSuccess = res => {
         const today = new Date();
+        const tomorrow = new Date();
+        tomorrow.setDate(today.getDate() + 1);
         const today_events = res.data.items
               .filter(event => today.toDateString() === new Date(event.start.dateTime).toDateString())
               .reduce((accum, event) => `${accum}* ${event.summary} \n`, "");
         const tomorrow_events = res.data.items
-              .filter(event => today.toDateString() === new Date(event.start.dateTime).toDateString())
+              .filter(event => tomorrow.toDateString() === new Date(event.start.dateTime).toDateString())
               .reduce((accum, event) => `${accum}* ${event.summary} \n`, "");
         const text = kintoneTemplate(today_events, tomorrow_events);
         const success = res => {
