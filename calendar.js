@@ -57,7 +57,7 @@ const listEvents = (success, failure) => {
     const client = createOAuth2Client();
     client.setCredentials(token);
 
-    const today = new Date();
+    const today = new Date(new Date().setHours(0, 0, 0, 0));
     const twoDaysAgo = new Date();
     twoDaysAgo.setDate(today.getDate() + 2);
 

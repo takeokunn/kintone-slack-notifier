@@ -6,9 +6,7 @@ const { Auth, Connection, Record, App } = require('@kintone/kintone-js-sdk');
 const { getAccessToken, listEvents } = require('./calendar');
 
 const kintoneTemplate = (today_events, tomorrow_events) => {
-    return `
-# 本日の業務
-
+    return `# 本日の業務
 ## 作業
 
 *
@@ -29,10 +27,8 @@ ${today_events}
 
 ${tomorrow_events}
 
-# 一言
-`;
+# 一言`;
 };
-
 
 const handleSlackPostMessage = (text) => {
     const url = process.env.SLACK_WEBHOOK_URL;
