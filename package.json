@@ -19,7 +19,7 @@
     },
     "homepage": "https://github.com/takeokunn/kintone-slack-notifier#readme",
     "dependencies": {
-        "@kintone/kintone-js-sdk": "^0.3.0",
+        "@kintone/kintone-js-sdk": "^0.3.2",
         "dotenv": "^8.0.0",
         "googleapis": "^40.0.0",
         "slack-webhook": "^1.0.0"
